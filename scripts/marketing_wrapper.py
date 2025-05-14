@@ -69,14 +69,18 @@ class MarketingDataGenerator:
             
             # Modify date range if specified
             if 'start_date' in self.params:
-                start_date_str = self.params['start_date'].strftime("%Y, %m, %d")
+                # Format date without leading zeros
+                start_date = self.params['start_date']
+                start_date_str = f"{start_date.year}, {start_date.month}, {start_date.day}"
                 modifications.append(
                     ('START_DATE = TODAY - datetime.timedelta(days=3*365)',
                      f'START_DATE = datetime.date({start_date_str})')
                 )
             
             if 'end_date' in self.params:
-                end_date_str = self.params['end_date'].strftime("%Y, %m, %d")
+                # Format date without leading zeros
+                end_date = self.params['end_date']
+                end_date_str = f"{end_date.year}, {end_date.month}, {end_date.day}"
                 modifications.append(
                     ('END_DATE = TODAY + datetime.timedelta(days=1*365)',
                      f'END_DATE = datetime.date({end_date_str})')
