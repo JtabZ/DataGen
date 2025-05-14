@@ -9,7 +9,8 @@ from scripts.tech_metrics_wrapper import TechMetricsGenerator
 from scripts.marketing_wrapper import MarketingDataGenerator
 from scripts.loan_risk_wrapper import LoanRiskGenerator
 from scripts.credit_card_wrapper import CreditCardGenerator
-from scripts.tax_data_wrapper import TaxDataGenerator  # Import the new generator
+from scripts.tax_data_wrapper import TaxDataGenerator
+from scripts.financial_data_wrapper import FinancialDataGenerator  # Import the new generator
 
 # Page configuration
 st.set_page_config(
@@ -94,8 +95,8 @@ GENERATORS = {
         "name": "Financial Statements",
         "description": "Generate balance sheets, income statements, and cash flow data",
         "icon": "📊",
-        "generator_class": None,  # Placeholder
-        "available": False
+        "generator_class": FinancialDataGenerator,
+        "available": True
     }
 }
 
