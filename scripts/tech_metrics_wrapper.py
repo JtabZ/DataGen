@@ -6,6 +6,9 @@ from io import StringIO
 from contextlib import redirect_stdout, redirect_stderr
 import pandas as pd
 from typing import Dict, Any
+import tempfile
+import shutil
+import subprocess
 
 
 class TechMetricsGenerator:
@@ -59,51 +62,71 @@ class TechMetricsGenerator:
     
     def generate(self) -> Dict[str, pd.DataFrame]:
         """Run the original script and capture the generated DataFrames"""
-        # Import the original script here to avoid running it at module load time
-        import importlib.util
-        import tempfile
-        
-        # Load the original script
-        script_path = os.path.join(os.path.dirname(__file__), 'tech_metrics.py')
-        spec = importlib.util.spec_from_file_location("tech_metrics", script_path)
-        tech_metrics = importlib.util.module_from_spec(spec)
-        
-        # Temporarily change the working directory to avoid saving files
-        original_dir = os.getcwd()
-        
-        try:
-            with tempfile.TemporaryDirectory() as temp_dir:
+        # Create a temporary directory for output files
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Copy the original script to temp directory
+            original_script = os.path.join(os.path.dirname(__file__), 'tech_metrics.py')
+            temp_script = os.path.join(temp_dir, 'tech_metrics.py')
+            
+            # Read the original script
+            with open(original_script, 'r') as f:
+                script_content = f.read()
+            
+            # Modify the script to use our parameters
+            modifications = f"""
+# Configuration overrides
+NUM_PRODUCTS = {self.params.get('num_products', 15)}
+NUM_TEAMS = {self.params.get('num_teams', 10)}
+NUM_CAMPAIGNS = {self.params.get('num_campaigns', 10)}
+NUM_CUSTOMERS = {self.params.get('num_customers', 5000)}
+
+"""
+            # Replace the original configuration section
+            script_content = script_content.replace("# --- Configuration ---", f"# --- Configuration ---\n{modifications}")
+            
+            # Save modified script
+            with open(temp_script, 'w') as f:
+                f.write(script_content)
+            
+            # Change to temp directory and run the script
+            original_dir = os.getcwd()
+            try:
                 os.chdir(temp_dir)
                 
-                # Capture stdout to suppress print statements
-                with redirect_stdout(StringIO()), redirect_stderr(StringIO()):
-                    # Set configuration values in the module
-                    tech_metrics.NUM_PRODUCTS = self.params.get('num_products', 15)
-                    tech_metrics.NUM_TEAMS = self.params.get('num_teams', 10)
-                    tech_metrics.NUM_CAMPAIGNS = self.params.get('num_campaigns', 10)
-                    tech_metrics.NUM_CUSTOMERS = self.params.get('num_customers', 5000)
-                    
-                    # Execute the script
-                    spec.loader.exec_module(tech_metrics)
+                # Execute the script using subprocess to isolate it
+                result = subprocess.run([sys.executable, 'tech_metrics.py'], 
+                                      capture_output=True, 
+                                      text=True)
+                
+                if result.returncode != 0:
+                    print(f"Script error: {result.stderr}")
+                    raise Exception(f"Script execution failed: {result.stderr}")
                 
                 # Read the generated CSV files
                 dataframes = {}
                 
-                if os.path.exists('dim_product.csv'):
-                    dataframes['dim_product'] = pd.read_csv('dim_product.csv')
-                if os.path.exists('dim_team.csv'):
-                    dataframes['dim_team'] = pd.read_csv('dim_team.csv')
-                if os.path.exists('dim_campaign.csv'):
-                    dataframes['dim_campaign'] = pd.read_csv('dim_campaign.csv')
-                if os.path.exists('fact_daily_product_metrics.csv'):
-                    dataframes['fact_daily_metrics'] = pd.read_csv('fact_daily_product_metrics.csv')
-                if os.path.exists('log_customer_feedback.csv'):
-                    dataframes['log_customer_feedback'] = pd.read_csv('log_customer_feedback.csv')
-                if os.path.exists('log_support_ticket.csv'):
-                    dataframes['log_support_ticket'] = pd.read_csv('log_support_ticket.csv')
+                csv_files = {
+                    'dim_product': 'dim_product.csv',
+                    'dim_team': 'dim_team.csv',
+                    'dim_campaign': 'dim_campaign.csv',
+                    'fact_daily_metrics': 'fact_daily_product_metrics.csv',
+                    'log_customer_feedback': 'log_customer_feedback.csv',
+                    'log_support_ticket': 'log_support_ticket.csv'
+                }
+                
+                for key, filename in csv_files.items():
+                    file_path = os.path.join(temp_dir, filename)
+                    if os.path.exists(file_path):
+                        dataframes[key] = pd.read_csv(file_path)
+                        print(f"Loaded {filename}: {len(dataframes[key])} rows")
+                    else:
+                        print(f"Warning: {filename} not found")
+                
+                if not dataframes:
+                    raise Exception("No data files were generated")
                 
                 return dataframes
                 
-        finally:
-            # Restore original directory
-            os.chdir(original_dir)
+            finally:
+                # Restore original directory
+                os.chdir(original_dir)
