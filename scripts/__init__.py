@@ -9,6 +9,8 @@ from .tech_metrics_wrapper import TechMetricsGenerator
 from .marketing_wrapper import MarketingDataGenerator
 from .loan_risk_wrapper import LoanRiskGenerator
 from .credit_card_wrapper import CreditCardGenerator
+from .tax_data_wrapper import TaxDataGenerator
+
 
 
 # Future imports will be added here as scripts are created
@@ -18,4 +20,4 @@ from .credit_card_wrapper import CreditCardGenerator
 # from .tax_data import TaxDataGenerator
 # from .financial_statements import FinancialStatementsGenerator
 
-__all__ = ['TechMetricsGenerator', 'MarketingDataGenerator', 'LoanRiskGenerator', 'CreditCardGenerator']
+__all__ = ['TechMetricsGenerator', 'MarketingDataGenerator', 'LoanRiskGenerator', 'CreditCardGenerator', 'TaxDataGenerator']

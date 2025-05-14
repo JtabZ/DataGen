@@ -8,7 +8,8 @@ import base64
 from scripts.tech_metrics_wrapper import TechMetricsGenerator
 from scripts.marketing_wrapper import MarketingDataGenerator
 from scripts.loan_risk_wrapper import LoanRiskGenerator
-from scripts.credit_card_wrapper import CreditCardGenerator  # Import the new generator
+from scripts.credit_card_wrapper import CreditCardGenerator
+from scripts.tax_data_wrapper import TaxDataGenerator  # Import the new generator
 
 # Page configuration
 st.set_page_config(
@@ -86,8 +87,8 @@ GENERATORS = {
         "name": "Tax Data",
         "description": "Generate tax returns, deductions, and compliance data",
         "icon": "📋",
-        "generator_class": None,  # Placeholder
-        "available": False
+        "generator_class": TaxDataGenerator,
+        "available": True
     },
     "financial_statements": {
         "name": "Financial Statements",
