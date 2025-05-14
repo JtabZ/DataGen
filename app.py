@@ -6,7 +6,8 @@ import zipfile
 import io
 import base64
 from scripts.tech_metrics_wrapper import TechMetricsGenerator
-from scripts.marketing_wrapper import MarketingDataGenerator  # Import the new generator
+from scripts.marketing_wrapper import MarketingDataGenerator
+from scripts.loan_risk_wrapper import LoanRiskGenerator  # Import the new generator
 
 # Page configuration
 st.set_page_config(
@@ -63,8 +64,8 @@ GENERATORS = {
         "name": "Loan & Risk Performance",
         "description": "Generate loan portfolios, risk metrics, default rates, and payment histories",
         "icon": "💰",
-        "generator_class": None,  # Placeholder
-        "available": False
+        "generator_class": LoanRiskGenerator,
+        "available": True
     },
     "credit_card": {
         "name": "Credit Card Applications",
