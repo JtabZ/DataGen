@@ -6,7 +6,7 @@ import zipfile
 import io
 import base64
 from scripts.tech_metrics_wrapper import TechMetricsGenerator
-# Future imports for other generators will go here
+from scripts.marketing_wrapper import MarketingDataGenerator  # Import the new generator
 
 # Page configuration
 st.set_page_config(
@@ -75,10 +75,10 @@ GENERATORS = {
     },
     "marketing": {
         "name": "Marketing Data",
-        "description": "Generate customer segments, campaign performance, and attribution data",
+        "description": "Generate marketing funnel data with channels, campaigns, and conversion metrics",
         "icon": "📈",
-        "generator_class": None,  # Placeholder
-        "available": False
+        "generator_class": MarketingDataGenerator,
+        "available": True
     },
     "tax_data": {
         "name": "Tax Data",
