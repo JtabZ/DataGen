@@ -12,7 +12,7 @@ NUM_CAMPAIGNS = 10
 NUM_CUSTOMERS = 5000 # Number of unique customer hashes to generate feedback/tickets for
 
 # Define Date Range (Approx 3 years past, 1 year future from May 12, 2025)
-CURRENT_DATE = datetime.date(2025, 5, 12)
+CURRENT_DATE = datetime.date(2025, 5, 14)
 START_DATE = CURRENT_DATE - datetime.timedelta(days=3*365)
 END_DATE = CURRENT_DATE + datetime.timedelta(days=1*365) # END_DATE is a datetime.date object
 DATE_RANGE = pd.date_range(START_DATE, END_DATE, freq='D')
